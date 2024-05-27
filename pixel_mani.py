@@ -1,7 +1,7 @@
 from gooey import Gooey, GooeyParser
 import os
 
-@Gooey(program_name="Image Encryptor", 
+@Gooey(program_name="Image Encryptor/Decryptor", 
        program_description="Encrypt and decrypt an image using XOR encryption")
 def main():
     parser = GooeyParser()
@@ -11,7 +11,6 @@ def main():
         help='Select an image (jpg, jpeg, png)',
         type=str,
         )
-    
     parser.add_argument(
         'encryption_key',
         help='Enter an encryption key (numeric)',
@@ -26,20 +25,46 @@ def main():
         print("File does not exist.")
         return
     
-    print(file_name, key)
+    if os.path.basename(file_name).startswith("crypt."):
+         decrypt_image(file_name, key)
+    else:
+        encrypt_image(file_name, key)
     
-    with open(file_name,'rb') as fi:
+def encrypt_image(file_name, key):
+        with open(file_name, 'rb') as fi:
+            image = fi.read()
+            
+        image = bytearray(image)
+    
+        for index, value in enumerate(image):
+            image[index] = value^(key)
+            
+        # Rename the file to crypt.filename.extension
+        path, extension = os.path.splitext(file_name)
+        new_file_name = f"crypt.{os.path.basename(path)}{extension}"
+    
+        with open(new_file_name, 'wb') as fi1:
+            fi1.write(image)
+    
+        print(f"Encryption complete. New file: {new_file_name}")
+
+def decrypt_image(file_name, key):
+    with open(file_name, 'rb') as fi:
         image = fi.read()
     
     image = bytearray(image)
     
-    for index,values in enumerate(image):
-        image[index] = values^(key)
+    for index, value in enumerate(image):
+        image[index] = value ^ key
     
-    with open(file_name,'wb') as fi1:
+    # Rename the file to filename.extension
+    new_file_name = os.path.basename(file_name)[6:]  # Remove 'crypt.' prefix
+    
+    with open(new_file_name, 'wb') as fi1:
         fi1.write(image)
-        
-    print("Operation complete.")
+    
+    print(f"Decryption complete. New file: {new_file_name}")
+
     
 if __name__ == "__main__":
     main()
