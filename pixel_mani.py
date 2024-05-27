@@ -26,8 +26,13 @@ def main():
     file_name = args.image_file
     key = args.encryption_key
     
+    # Validation
     if not os.path.isfile(file_name):
         print("File does not exist.")
+        return
+    
+    if not file_name.lower().endswith(('.jpg', '.jpeg', '.png')):
+        print("Selected file is not a supported image type.")
         return
     
     if os.path.basename(file_name).startswith("crypt."):
